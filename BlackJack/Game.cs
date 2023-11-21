@@ -10,194 +10,175 @@ namespace BlackJack
     {
         private Deck _deck;
 
-        private List<Card> _playerCards;
+        private Player _player;
 
-        private List<Card> _computerCards;
-
-        private int _playerPoints;
-
-        private int _computerPoints;
-
-        private int _playerWins;
-
-        private int _computerWins;
-
-        private bool _playerContinues = true;
-
-        private bool _computerContinues = true;
+        private Player _computer;
 
         public Game()
         {
-            _deck = new Deck();
+            _player = new Player();
 
-            _playerCards = new List<Card>();
-
-            _computerCards = new List<Card>();
-
-            _playerPoints = 0;
-
-            _computerPoints = 0;
-
-            _deck.Shuffle();
+            _computer = new Player();
         }
 
 
         public void StartGame()
         {
+            NewGame();
+
             DealInitialCards();
 
-            while (_playerPoints < 21 && _computerPoints < 21)
+            if (_player.AcesWin == true || _computer.AcesWin == true) 
             {
-                if (_playerContinues)
-                {
-                    PlayerTurn();
+                DetermineWinner();
+                return;
+            }
+            
 
-                    if (_playerPoints >= 21)
-                    {
-                        _playerContinues = false;
-                    }
-                }
-
-                if (_computerContinues)
-                {
-                    ComputerTurn();
-
-                    if (_computerPoints >= 21)
-                    {
-                        _computerContinues = false;
-                    }
-                }
-
-                if (!_playerContinues && !_computerContinues)
+            while (_player.PlayerPoints < 21 && _computer.PlayerPoints < 21)
+            {
+                if (!_player.PlayerContinues && !_computer.PlayerContinues)
                 {
                     break;
                 }
+
+                if (_player.PlayerContinues)
+                {
+                    PlayerTurn();
+
+                    if (_player.PlayerPoints >= 21)
+                    {
+                        _player.PlayerContinues = false;
+                    }
+                }
+
+                if (_computer.PlayerContinues)
+                {
+                    ComputerTurn();
+
+                    if (_computer.PlayerPoints >= 21)
+                    {
+                        _computer.PlayerContinues = false;
+                    }
+                }
             }
-
-
-
 
             DetermineWinner();
         }
 
         private void DealInitialCards()
         {
-            Console.WriteLine("Shuffling the deck and dealing the initial cards...\n");
+            Console.WriteLine("Shuffling the deck and dealing the initial cards... \n");
 
-            _playerCards.Add(_deck.DrawCard());
-            _playerCards.Add(_deck.DrawCard());
+            _player.PlayerCards.Add(_deck.DrawCard());
 
-            foreach (Card card in _playerCards)
+            _player.PlayerCards.Add(_deck.DrawCard());
+
+            foreach (Card card in _player.PlayerCards)
             {
-                _playerPoints += card.GetCardValue();
+                _player.PlayerPoints += card.GetCardValue();
 
             }
 
-            string playerHand = string.Join(", ", _playerCards.Select(card => card.ToString()));
+            _player.AcesWin = IfAcesWin(_player.PlayerCards);
 
-            Console.WriteLine($"You are dealt: {playerHand}. Your total points: {_playerPoints}\n");
+            string playerHand = string.Join(", ", _player.PlayerCards.Select(card => card.ToString()));
 
-
-            _computerCards.Add(_deck.DrawCard());
-            _computerCards.Add(_deck.DrawCard());
-
-            foreach (Card card in _computerCards)
+            if (_player.AcesWin == true)
             {
-                _computerPoints += card.GetCardValue();
+                Console.WriteLine($"You are dealt: {playerHand}. Your total points: {_player.PlayerPoints} \n");
+                return;
             }
 
-            Console.WriteLine($"Computer is dealt: {_computerCards.Count()} cards.\n");
+            Console.WriteLine($"You are dealt: {playerHand}. Your total points: {_player.PlayerPoints} \n");
 
-        }
+            _computer.PlayerCards.Add(_deck.DrawCard());
 
-        private bool GameOver()
-        {
-            if (_playerPoints >= 21)
+            _computer.PlayerCards.Add(_deck.DrawCard());
+
+            foreach (Card card in _computer.PlayerCards)
             {
-                return true;
-            }
-            else if (_computerPoints >= 21)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
+                _computer.PlayerPoints += card.GetCardValue();
             }
 
+            _computer.AcesWin = IfAcesWin(_computer.PlayerCards);
+
+            if (_computer.AcesWin == true)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Computer is dealt: {_computer.PlayerCards.Count()} cards. \n");
 
         }
 
         private void PlayerTurn()
         {
-            Console.WriteLine("Do you want to get another one card? Y/N?\n");
+            Console.WriteLine("Do you want to get another one card? Y/N? \n");
 
             string playerChoice = Console.ReadLine().ToUpper();
 
-            while (true)
+            
+            
+            while (playerChoice != "Y" && playerChoice != "N")
             {
-                if (playerChoice == "Y")
-                {
-                    Card newCard = _deck.DrawCard();
-
-                    _playerCards.Add(newCard);
-
-                    _playerPoints += newCard.GetCardValue();
-
-                    string playerHand = string.Join(", ", _playerCards.Select(card => card.ToString()));
-
-                    Console.WriteLine($"You drew: {newCard}. Your hand: {playerHand}. Your total points: {_playerPoints}\n");
-
-                    if (_playerPoints >= 21)
-                    {
-                        _playerContinues = false;
-                        break;
-                    }
-
-                    break;
-
-                }
-                else if (playerChoice == "N")
-                {
-                    _playerContinues = false;
-
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Please enter 'Y' for Yes or 'N' for No.\n");
+                
+                
+                    Console.WriteLine("Please enter 'Y' for Yes or 'N' for No. \n");
 
                     playerChoice = Console.ReadLine().ToUpper();
+                    
+                    break;
+                
+            }
+
+
+            if (playerChoice == "Y")
+            {
+                Card newCard = _deck.DrawCard();
+
+                _player.PlayerCards.Add(newCard);
+
+                _player.PlayerPoints += newCard.GetCardValue();
+
+                string playerHand = string.Join(", ", _player.PlayerCards.Select(card => card.ToString()));
+
+                Console.WriteLine($"You drew: {newCard}. Your hand: {playerHand}. Your total points: {_player.PlayerPoints} \n");
+
+                if (_player.PlayerPoints >= 21)
+                {
+                    _player.PlayerContinues = false;
+
                 }
             }
+
+            else
+            {
+                    _player.PlayerContinues = false;
+
+            }
+            
         }
 
         private void ComputerTurn()
         {
-            while (_computerContinues && _computerPoints < 17)
+            if (_computer.PlayerContinues && _computer.PlayerPoints < 17)
             {
                 Card newCard = _deck.DrawCard();
 
-                _computerCards.Add(newCard);
+                _computer.PlayerCards.Add(newCard);
 
-                _computerPoints += newCard.GetCardValue();
+                _computer.PlayerPoints += newCard.GetCardValue();
 
-                Console.WriteLine($"Computer draws. Computer's total cards: {_computerCards.Count}");
-
-                if (_computerPoints >= 17)
-                {
-                    Console.WriteLine("The computer decides to stop drawing cards.\n");
-
-                    _computerContinues = false;
-
-                    break;
-                }
-
-                if (_computerPoints >= 21)
-                {
-                    break;
-                }
+                Console.WriteLine($"Computer draws. Computer's total cards: {_computer.PlayerCards.Count} \n");
             }
+
+            else
+            {
+                    Console.WriteLine("The computer decides to stop drawing cards. \n");
+
+                    _computer.PlayerContinues = false;
+            }            
         }
 
 
@@ -205,138 +186,111 @@ namespace BlackJack
 
         private void DetermineWinner()
         {
-            int playerAces = _playerCards.Count(card => card._value == "Ace");
-            int computerAces = _computerCards.Count(card => card._value == "Ace");
 
-            bool playerTwoAces = playerAces == 2 && _playerCards.Count == 2;
-            bool computerTwoAces = computerAces == 2 && _computerCards.Count == 2;
-
-            if (playerTwoAces)
+            if (_player.AcesWin == true)
             {
+                _player.PlayerWins++;
 
-                string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
-
-                Console.WriteLine($"Computer's hand: {computerHand}");
-
-                _playerWins++;
-
-                Console.WriteLine($"You win this round with 2 ACES! Your points: {_playerPoints}, Computer's points: {_computerPoints}");
-
+                Console.WriteLine($"You win this round with TWO ACES! Your points: {_player.PlayerPoints}, Computer's points: {_computer.PlayerPoints} \n");
             }
 
-            else if (computerTwoAces)
+            else if (_computer.AcesWin == true)
             {
-                string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                _computer.PlayerWins++;
 
-                Console.WriteLine($"Computer's hand: {computerHand}");
+                string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                _computerWins++;
+                Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                Console.WriteLine($"Computer wins this round with 2 ACES! Computer's points: {_computerPoints}, Your points: {_playerPoints}");
+                Console.WriteLine($"Computer win this round with TWO ACES! Your points: {_player.PlayerPoints}, Computer's points: {_computer.PlayerPoints} \n");
             }
 
-            else if (_playerPoints <= 21 && (_playerPoints > _computerPoints || _computerPoints > 21))
+            else if (_player.PlayerPoints <= 21 && (_player.PlayerPoints > _computer.PlayerPoints || _computer.PlayerPoints > 21))
             {
-                string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                Console.WriteLine($"Computer's hand: {computerHand}");
+                Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                _playerWins++;
+                _player.PlayerWins++;
 
-                Console.WriteLine($"You win this round! Your points: {_playerPoints}, Computer's points: {_computerPoints}");
+                Console.WriteLine($"You win this round! Your points: {_player.PlayerPoints}, Computer's points: {_computer.PlayerPoints} \n");
             }
-            else if (_computerPoints <= 21 && (_computerPoints > _playerPoints || _playerPoints > 21))
+
+            else if (_computer.PlayerPoints <= 21 && (_computer.PlayerPoints > _player.PlayerPoints || _player.PlayerPoints > 21))
             {
-                string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                Console.WriteLine($"Computer's hand: {computerHand}");
+                Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                _computerWins++;
+                _computer.PlayerWins++;
 
-                Console.WriteLine($"Computer wins this round! Computer's points: {_computerPoints}, Your points: {_playerPoints}");
+                Console.WriteLine($"Computer wins this round! Computer's points: {_computer.PlayerPoints}, Your points: {_player.PlayerPoints} \n");
             }
-            else if (_playerPoints > 21 && _computerPoints > 21)
+            else if (_player.PlayerPoints > 21 && _computer.PlayerPoints > 21)
             {
-                if (_playerPoints < _computerPoints)
+                if (_player.PlayerPoints < _computer.PlayerPoints)
                 {
-                    string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                    string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                    Console.WriteLine($"Computer's hand: {computerHand}");
+                    Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                    _playerWins++;
+                    _player.PlayerWins++;
 
-                    Console.WriteLine($"You win this round! Your points: {_playerPoints}, Computer's points: {_computerPoints}");
+                    Console.WriteLine($"You win this round! Your points: {_player.PlayerPoints}, Computer's points: {_computer.PlayerPoints} \n");
                 }
-                else if (_computerPoints < _playerPoints)
+                else if (_computer.PlayerPoints < _player.PlayerPoints)
                 {
-                    string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                    string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                    Console.WriteLine($"Computer's hand: {computerHand}");
+                    Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                    _computerWins++;
+                    _computer.PlayerWins++;
 
-                    Console.WriteLine($"Computer wins this round! Computer's points: {_computerPoints}, Your points: {_playerPoints}");
+                    Console.WriteLine($"Computer wins this round! Computer's points: {_computer.PlayerPoints}, Your points: {_player.PlayerPoints} \n");
                 }
             }
             else
             {
-                string computerHand = string.Join(", ", _computerCards.Select(card => card.ToString()));
+                string computerHand = string.Join(", ", _computer.PlayerCards.Select(card => card.ToString()));
 
-                Console.WriteLine($"Computer's hand: {computerHand}");
+                Console.WriteLine($"Computer's hand: {computerHand} \n");
 
-                Console.WriteLine("It's a draw!");
+                Console.WriteLine("It's a draw! \n");
             }
             
 
-                Console.WriteLine($"Total victories - Player: {_playerWins}, Computer: {_computerWins}\n");
-
-                Console.WriteLine("Would you like to test your fate once more? Y/N?");
-
-                string playerChoice = Console.ReadLine().ToUpper();
-
-                while (true)
-                {
-
-                    if (playerChoice == "Y")
-                    {
-                        ResetGame();
-                        StartGame();
-                        break;
-                    }
-
-                    else if (playerChoice == "N")
-                    {
-                        Console.WriteLine("Thank you for playing!");
-                        Environment.Exit(0);
-                    }
-
-                    else
-                    {
-                        Console.WriteLine("Please enter 'Y' for Yes or 'N' for No.\n");
-
-                        playerChoice = Console.ReadLine().ToUpper();
-
-                        continue;
-                    }
-                }
-            
+                Console.WriteLine($"Total victories - Player: {_player.PlayerWins}, Computer: {_computer.PlayerWins} \n");
         }
-            private void ResetGame()
-            {
-                _playerCards.Clear();
-                _computerCards.Clear();
 
-                _playerPoints = 0;
-                _computerPoints = 0;
+        private bool IfAcesWin(List<Card> playerCards) 
+        {
+            int playerAces = playerCards.Count(card => card.Value == CardValue.Ace);
 
-                _playerContinues = true;
-                _computerContinues = true;
+            bool playerTwoAces = playerAces == 2 && playerCards.Count == 2;
 
-                _deck = new Deck();
+            return playerTwoAces;
+        }
+        private void NewGame() 
+        {
+            _deck = new Deck();
 
-                _deck.Shuffle();
-            }
+            _deck.Shuffle();
 
-        
+            _player.PlayerCards.Clear();
+
+            _computer.PlayerCards.Clear();
+
+            _player.AcesWin = false;
+
+            _computer.AcesWin = false;
+
+            _player.PlayerPoints = 0;
+
+            _computer.PlayerPoints = 0;
+
+            _player.PlayerContinues = true;
+
+            _computer.PlayerContinues = true;
+        }
     } 
 }

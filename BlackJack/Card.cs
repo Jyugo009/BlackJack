@@ -6,52 +6,58 @@ using System.Threading.Tasks;
 
 namespace BlackJack
 {
-
-     public struct Card
+    public enum CardValue
     {
-        public string _value { get; set; }
+        Jack = 2,
+        Queen = 3,
+        King = 4,
+        Six = 6,
+        Seven = 7,
+        Eight = 8,
+        Nine = 9,
+        Ten = 10,
+        Ace = 11
+    }
 
-        public string _suit { get; set; }
+    public enum CardSuit
+    {
+        Hearts,
+        Diamonds,
+        Clubs,
+        Spades
+    }
 
-        public static readonly Dictionary<string, string> SuitSymbols = new Dictionary<string, string>
+    public struct Card
+    {
+        public CardValue Value { get; set; }
+        public CardSuit Suit { get; set; }
+
+        private static readonly Dictionary<CardSuit, string> SuitSymbols = new Dictionary<CardSuit, string>
         {
-            ["Hearts"] = "\u2665", 
+            [CardSuit.Hearts] = "\u2665", 
 
-            ["Diamonds"] = "\u2666",
+            [CardSuit.Diamonds] = "\u2666",
 
-            ["Clubs"] = "\u2663", 
+            [CardSuit.Clubs] = "\u2663", 
 
-            ["Spades"] = "\u2660" 
+            [CardSuit.Spades] = "\u2660" 
         };
 
-        public Card(string suit, string value)
+        public Card(CardSuit suit, CardValue value)
         {
-            if (!SuitSymbols.ContainsKey(suit))
-                throw new ArgumentException("Invalid suit.", nameof(suit));
+            Suit = suit;
 
-            _suit = SuitSymbols[suit];
-            _value = value;
+            Value = value;
         }
 
         public int GetCardValue()
         {
-            switch (_value)
-            {
-                case "Ace": return 11;
-
-                case "King": return 4;
-
-                case "Queen": return 3;
-
-                case "Jack": return 2;
-
-                default: return int.Parse(_value);
-            }
+            return (int)Value;
         }
 
         public override string ToString()
         {
-            return $"{_value} {_suit}";
+            return $"{Value} {SuitSymbols[Suit]}";
         }
     }
 }

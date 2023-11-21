@@ -31,35 +31,66 @@ namespace BlackJack
             string playerChoice;
 
             Console.WriteLine("Do you want to play in \"Twenty-One\"?");
+
             Console.WriteLine("Y\\N?\n");
-            
+
             playerChoice = Console.ReadLine().ToUpper();
             while (true)
             {
                 if (playerChoice != "Y" && playerChoice != "N")
                 {
-                    Console.WriteLine("Please enter 'Y' for Yes or 'N' for No.");
+                    Console.WriteLine("Please enter 'Y' for Yes or 'N' for No.\n");
+
                     playerChoice = Console.ReadLine().ToUpper();
+                    
                     continue;
                 }
 
-                if (playerChoice == "Y")
+                else if (playerChoice == "Y")
                 {
                     game.StartGame();
+
                     break;
                 }
 
                 else
                 {
                     Console.WriteLine("Ok, good luck!");
-                    break;
+
+                    Environment.Exit(0);
                 }
+
+
             }
 
-            //Добавить победу за 2 Туза и Вскрывание карт у Компа в конце игры.
-            
+            while (true)
+            {
+                Console.WriteLine("Would you like to test your fate once more? Y/N?\n");
 
-            
+                string newGameChoice = Console.ReadLine().ToUpper();
+
+                if (newGameChoice != "N" && newGameChoice != "Y")
+                {
+                    Console.WriteLine("Please enter 'Y' for Yes or 'N' for No.\n");
+
+                    newGameChoice = Console.ReadLine().ToUpper();
+
+                    continue;
+                }
+
+
+                else if (newGameChoice == "Y")
+                {
+                    game.StartGame();
+                }
+
+                else
+                {
+                    Console.WriteLine("Thank you for playing!");
+
+                    Environment.Exit(0);
+                }
+            }
         }
     }
 }

@@ -9,23 +9,17 @@ namespace BlackJack
 {
     public class Deck
     {    
-        private Card[] cards;
-
-        string[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
-
-        string[] values = { "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
+        private List<Card> cards;
 
         public Deck()
         {
-            cards = new Card[36];
-            
-            int index = 0;
-            foreach (var suit in suits)
+            cards = new List<Card>();
+
+            foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
             {
-                foreach (var value in values)
+                foreach (CardValue value in Enum.GetValues(typeof(CardValue)))
                 {
-                    cards[index] = new Card(suit, value);
-                    index++;
+                    cards.Add(new Card(suit, value));
                 }
             }
         }
@@ -33,7 +27,9 @@ namespace BlackJack
         public void Shuffle()
         {
             Random random = new Random();
-            int count = cards.Length;
+
+            int count = cards.Count;
+
             while (count > 1)
             {
                 count--;
@@ -46,23 +42,20 @@ namespace BlackJack
 
                 cards[count] = value;
             }
-            Console.WriteLine("Deck is shuffled!\n");
+
+            Console.WriteLine($"Deck was shuffled!\n");
         }
 
         public Card DrawCard()
         {
-            if (cards.Length == 0)
+            if (cards.Count == 0)
             {
-               Console.WriteLine("No more cards in the deck.\n");
+                Console.WriteLine("No more cards in the deck.\n");
             }
-            
+
             Card cardToDraw = cards[0];
 
-            for (int i = 1; i < cards.Length; i++)
-            {
-                cards[i - 1] = cards[i];
-            }
-            Array.Resize(ref cards, cards.Length - 1);
+            cards.RemoveAt(0);
 
             return cardToDraw;
         }
@@ -71,9 +64,9 @@ namespace BlackJack
         {
             List<int> acesPositions = new List<int>();
 
-            for (int i = 0; i < cards.Length; i++)
+            for (int i = 0; i < cards.Count; i++)
             {
-                if (cards[i]._value == "Ace")
+                if (cards[i].Value == CardValue.Ace)
                 {
                     acesPositions.Add(i);
                 }
@@ -85,17 +78,28 @@ namespace BlackJack
 
         public void MoveSpadesToTop()
         {
-            Card[] spadesCards = cards.Where(card => card._suit == SuitSymbols["Spades"]).ToArray();
-            Card[] otherCards = cards.Where(card => card._suit != SuitSymbols["Spades"]).ToArray();
+            int startIndex = 0;
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (cards[i].Suit == CardSuit.Spades)
+                {
+                    Card temp = cards[i];
+
+                    cards[i] = cards[startIndex];
+
+                    cards[startIndex] = temp;
+
+                    startIndex++;
+                }
+            }
 
             Console.WriteLine("\nAll spades on top!\n");
-
-            cards = spadesCards.Concat(otherCards).ToArray();
         }
 
         public void SortDeck()
         {
-            var sortedCards = cards.OrderBy(card => card._suit).ThenBy(card => Array.IndexOf(values, card._value)).ToArray();
+            var sortedCards = cards.OrderBy(card => card.Suit).ThenBy(card => card.Value).ToList();
 
             cards = sortedCards;
 
